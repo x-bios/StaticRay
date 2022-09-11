@@ -36,7 +36,7 @@ struct RGBSystem {
 };
 
 
-// Color / System Associator ==============================
+// Color / System Associators =============================
 
 
 template <typename ColorSystem, ColorSystem::EmissiveType ColorValue>

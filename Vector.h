@@ -22,7 +22,7 @@ template <typename Type>
 
 
 // Declaration Specifiers
-#define Inline								inline
+#define Inline					  			inline
 #define InlineND	[[nodiscard]]			inline
 #define InlineNDC	[[nodiscard]] constexpr inline
 
@@ -186,7 +186,7 @@ template <typename Type>
 	BinaryOperators(VectorType,  %)										\
 	ScalarOperators(VectorType,  %)
 
-// Floati-Only Modulus Operator Implementations
+// Float-Only Modulus Operator Implementations
 #define FloatModulus(VectorType)										\
 	InlineNDC VectorType operator% (const VectorType& Other) const {	\
 		return {modf(x, Other.x), modf(y, Other.y), 					\

@@ -13,22 +13,6 @@ struct Coord {
 	template <typename XType, typename YType>
 	Coord(const XType& x, const YType& y) :
 		x(Integer(x)), y(Integer(y)) {}
-
-	[[nodiscard]] Coord operator+ (const Coord& Other) const {
-		return { x + Other.x, y + Other.y };
-	}
-
-	[[nodiscard]] Coord operator- (const Coord& Other) const {
-		return { x - Other.x, y - Other.y };
-	}
-
-	[[nodiscard]] Coord operator* (const Coord& Other) const {
-		return { x * Other.x, y * Other.y };
-	}
-
-	[[nodiscard]] Coord operator/ (const Coord& Other) const {
-		return { x / Other.x, y / Other.y };
-	}
 };
 
 
@@ -41,18 +25,20 @@ struct ImageType : vector<Type> {
 		Resize(forward<Coord>(Dimensions));
 	}
 
-	void resize(const size_t) = delete;
-
+	// Resize the image.
 	void Resize(Coord&& Dimensions) {
 		this->Dimensions = move(Dimensions);
 		vector<Type>::resize(Dimensions.x * Dimensions.y);
+		this->shrink_to_fit();
 	}
 
+	// Return a reference to the pixel at the supplied coordinate.
 	[[nodiscard]] inline Type& operator() (const Coord& Coord) {
 		return (*this)[Coord.y * Dimensions.x + Coord.x];
 	}
 
-	[[nodiscard]] inline const Type& operator() (const Coord& Coord) const {
+	// Return a constant reference to the pixel at the supplied coordinate.
+	[[nodiscard]] constexpr inline Type& operator() (const Coord& Coord) const {
 		return (*this)[Coord.y * Dimensions.x + Coord.x];
 	}
 
@@ -121,12 +107,15 @@ public:
 
 // 4xReal Floating-Point Image
 // Saves to a 24/32bit Targa file.
+// Channel are in the range [0..1).
 using RImage  = TargaType<RColor>;
 
 // 4x32bit Integer Image
 // Saves to a 24/32bit Targa file.
+// Channel are in the range [0..255].
 using IImage  = TargaType<IColor>;
 
 // 4x8bit Integer Image
 // Saves to a 24/32bit Targa file.
+// Channel are in the range [0..255].
 using BImage  = TargaType<BColor>;

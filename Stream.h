@@ -65,7 +65,7 @@ struct DataStream {
 	fstream	_File{};	// File stream
 
 	~DataStream() {
-		// Ensure the file is closed on destrction.
+		// Ensure the file is closed on destruction.
 		if (_File.is_open())
 			_File.close();
 	}

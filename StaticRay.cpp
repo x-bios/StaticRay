@@ -114,7 +114,8 @@ void Render(const path& Filename) {
 
 	// Create the output file.
 	DataStream data;
-	if (data.New(Filename))
+	const auto filename = path("out/") / Filename;
+	if (data.New(filename))
 		return;
 
 	// Prepare tracer states for each thread.
@@ -173,8 +174,8 @@ void Render(const path& Filename) {
 	// Flush remaining output buffers and collect final stats.
 	uint64 hits = 0, exposures = 0;
 	for (auto& state : states) {
-		hits += state._Hits;
 		state.Film.Flush();
+		hits += state._Hits;
 		exposures += state.Film._Exposures;
 	}
 
@@ -208,11 +209,12 @@ void Develop(const path& Filename) {
 #endif
 
 	// Scan the input file to estimate exposure.
+	const auto filename = path("out/") / Filename;
 	Real exposure;
 	{
 		// Open the file in read-only mode.
 		DataStream data;
-		if (data.Open(Filename, true))
+		if (data.Open(filename, true))
 			return;
 
 		ColorFilm16 film{&data, 1ULL << 20};
@@ -234,7 +236,7 @@ void Develop(const path& Filename) {
 		workers.push_back(thread([&]([[maybe_unused]] const unsigned id) {
 			// Open the file in read-only mode.
 			DataStream data;
-			if (data.Open(Filename, true))
+			if (data.Open(filename, true))
 				return;
 
 			ColorFilm16 film{&data, 1ULL << 20};
@@ -247,18 +249,18 @@ void Develop(const path& Filename) {
 
 				// Output Image
 				RImage image({Width, Height});
-
-				// Center of the image.
-				const auto half = RVector{Width, Height} / 2r;
+				const auto half		= RVector{Width, Height} / 2r;	// Image center.
 
 				// Per-Frame / Animated Parameters
-				const Real focalDist = 2r + frame / 32r;
+				const auto focalDist = 2r + frame / 32r;
 
 				// Virtual Lens Configuration
-				const auto lensRad = film.Config.LensRadius;
-				const auto radSq   = lensRad * lensRad;
-				const auto fLimit  = RVector{1, FLimit}.Normalized().y;
-				const auto hZoom   = half * lensRad * FocalLen * Zoom * csqrt(2r) / -2r;
+				const auto lensRad	= film.Config.LensRadius;
+				const auto radSq	= lensRad * lensRad;
+				const auto fLimit	= RVector{1, FLimit}.Normalized().y;
+
+				// Scale the virtual image to fit the real image.
+				const auto hScale	= half * lensRad * FocalLen * Zoom * csqrt(2r) / -2r;
 
 				// Load all photons from the file.
 				film.ReadHits([&](auto& hits) {
@@ -294,7 +296,7 @@ void Develop(const path& Filename) {
 						const auto imgPos = recPos + projDir * imgDist / -projDir.z;
 
 						// Normalize and center the image.
-						const auto pixel = imgPos * hZoom + half;
+						const auto pixel = imgPos * hScale + half;
 
 						// Perform lower boundary checks.
 						if (pixel.x < 0r || pixel.y < 0r ||
@@ -319,7 +321,6 @@ void Develop(const path& Filename) {
 
 				// Normalize intensity.
 				image.ForEach([exposure, &image](const Coord& Pixel) {
-					//image(Pixel) /= 30r;
 					image(Pixel) *= exposure;
 				});
 
@@ -340,6 +341,6 @@ void Develop(const path& Filename) {
 
 // Program entry point
 int main() {
-	//Render("out.dat");
+	Render("out.dat");
 	Develop("out.dat");
 }

@@ -60,10 +60,11 @@ struct TraceState {
 	RVector		_PoolRand;			// A small pool of random floats.
 	Integer		_PoolIndex = 0;		// Current in random pool index.
 
-	Integer		_Hits = 0;			// Statistics: Hit counter.
 	Real		_HitDist;			// Distance to the nearest intersection.
 	RVector		_HitNorm;			// Surface normal of the intersected shape.
 	FuncFunc	_HitFunc;			// Callback for the nearest intersection.
+
+	uint64		_Hits = 0;			// Statistics: Hit counter.
 
 	// Reset the trace for the next bounce.
 	inline void Reset() {

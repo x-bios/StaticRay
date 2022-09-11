@@ -85,7 +85,7 @@ struct ColorFilm : vector<HitType> {
 		this->reserve(BufferLimit);
 	}
 
-	// Expose the digital film to the a photon.
+	// Expose the digital film to the photon.
 	// Returns true on error.
 	bool Expose(HitType&& Hit) {
 		// Encode and buffer the captured photon.
